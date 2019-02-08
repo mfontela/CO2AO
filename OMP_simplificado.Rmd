@@ -1,5 +1,5 @@
 ---
-title: "CO2AO - Caso pr·ctico extended OMP"
+title: "CO2AO - Caso pr√°ctico extended OMP"
 author: "Marcos Fontela, 2019"
 output:
   html_document: 
@@ -8,7 +8,7 @@ output:
     toc_depth: 5
     theme: flatly #el mismo theme que la web
 # bibliography: references.bib #Es el nombre del archivo que genera el addin de rcrossref por ejemplo
-# nocite: '@*' #AÒadiendo esto te aÒade "abajo" todo lo que estÈ en references.bib
+# nocite: '@*' #A√±adiendo esto te a√±ade "abajo" todo lo que est√© en references.bib
 ---
 
 <style>
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 list.of.packages <- c("tidyverse", "knitr", "readxl", "ggrepel", "marelac", "plot3D", "DT", "readr", "pracma")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
-#El paso previo busca si te falta alg˙n package, y en caso de que te falte, te lo instala. 
+#El paso previo busca si te falta alg√∫n package, y en caso de que te falte, te lo instala. 
 library(tidyverse)
 library(knitr)
 library(readxl)
@@ -34,7 +34,7 @@ library(readr)
 library(pracma) #For the lsqnonneg
 ```
 
-# øQuÈ necesitamos?
+# ¬øQu√© necesitamos?
 
 Datos de inicio:
  
@@ -49,9 +49,10 @@ Datos de inicio:
 ```{r load everything, echo=T}
 # Load data ---------------------------------------------------------------
 
-data <- read.delim("C:/Users/MFontela/Nextcloud/ULPGC/OMPGT10/INPUT_botellas.txt", na.strings="-999")
-SWT <- read_excel("C:/Users/MFontela/Nextcloud/ULPGC/OMPGT10/INPUT_SWT.xlsx")
-MixingFigures <- read.delim("C:/Users/MFontela/Nextcloud/ULPGC/OMPGT10/INPUT_MixingFigures.txt", header=FALSE)
+data <- read.delim("C:/UsersXXXXXXXXXXXXXXXXXXXXXXXXXX/INPUT_botellas.txt", na.strings="-999") #Actualiza con la ruta de la carpeta donde hayas guardado el archivo
+SWT <- read_excel("C:/Users/XXXXXXXXXXXXXXXXXXXXXXXXXX/INPUT_SWT.xlsx")#Actualiza con la ruta de la carpeta donde hayas guardado el archivo
+MixingFigures <- read.delim("C:/Users/XXXXXXXXXXXXXXXXXXXXXXXXXX/INPUT_MixingFigures.txt", header=FALSE)#Actualiza con la ruta de la carpeta donde hayas guardado el archivo
+
 names(MixingFigures) <- c("wm1", "wm2", "wm3", "wm4") #rename table
 MixingFigures <- mutate(MixingFigures, wm1=as.character(wm1),wm2=as.character(wm2),wm3=as.character(wm3),wm4=as.character(wm4))
 
@@ -73,7 +74,7 @@ datatable(data, class = 'hover row-border',colnames = c('observation' = 1))
 ```
 
 
-Y tambiÈn las  propiedades tipo de las masas de agua (SWT) que, *apoy·ndote en bibliografÌa* consideras:
+Y tambi√©n las  propiedades tipo de las masas de agua (SWT) que, *apoy√°ndote en bibliograf√≠a* consideras:
 
 
 ```{r tabla SWT}
@@ -81,7 +82,7 @@ datatable(SWT, class = 'hover row-border',colnames = c('ID' = 1))
 ```
 
 
-TambiÈn cargaste las posibles Mixing Figures:
+Tambi√©n cargaste las posibles Mixing Figures:
 
 
 ```{r tabla Mixing Figures}
@@ -90,7 +91,7 @@ datatable(MixingFigures, class = 'hover row-border')
 
 ## Diagrama T-S
 
-Siempre es bonito ver los datos de botella con las SWT consideradas, øno crees? Adem·s te ayuda a ver si escogiste bien las masas de agua tipo.
+Siempre es bonito ver los datos de botella con las SWT consideradas, ¬øno crees? Adem√°s te ayuda a ver si escogiste bien las masas de agua tipo.
 
 
 ```{r TS con MF}
@@ -98,7 +99,7 @@ Siempre es bonito ver los datos de botella con las SWT consideradas, øno crees? 
 plotbase<-ggplot(data, aes(x=Sal, y=Tpot))+
     geom_point(alpha=.3)+
    scale_x_continuous(limits=c(34, 37))+
-   labs(y="Tpot (∫C)",x='Salinity')+
+   labs(y="Tpot (¬∫C)",x='Salinity')+
   theme_bw()
 
 plotbase+geom_point(data=SWT, aes(x=Sal, y=Tpot, colour=wm), size=3)+
@@ -106,9 +107,9 @@ plotbase+geom_point(data=SWT, aes(x=Sal, y=Tpot, colour=wm), size=3)+
 
 ```
 
-### AÒade m·s variables
+### A√±ade m√°s variables
 
-El siguiente paso es **calcular aquellos trazadores** que no estÈn entre los datos iniciales: NO, PO, los nutrientes preformados...
+El siguiente paso es **calcular aquellos trazadores** que no est√©n entre los datos iniciales: NO, PO, los nutrientes preformados...
 
 ```{r add variables, echo=T}
 # Add variables NO, PO, AOU, preformed...--------------------------------------
@@ -116,7 +117,7 @@ El siguiente paso es **calcular aquellos trazadores** que no estÈn entre los dat
 data<-data %>%
   mutate(NO=O2+(Redfield$NO3*NO3),
         PO=O2+(Redfield$PO4*PO4),
-         AOU=(exp(-135.29996 + 157228.8/(Tpot+273.15) - 66371490/(Tpot+273.15)^2 + 12436780000/(Tpot+273.15)^3 - 862106100000/(Tpot+273.15)^4 -(Sal*(0.020573 - 12.142/(Tpot+273.15) + 2363.1/(Tpot+273.15)^2))))-O2, #la primera parte es la sw_satO2 del mÌtico SEAWATER toolbox del matlab. reference: "Weiss, R. F. 1970: "The solubility of nitrogen, oxygen and argon in water and seawater."Deep-Sea Research., 1970, Vol 17, pp721-735.
+         AOU=(exp(-135.29996 + 157228.8/(Tpot+273.15) - 66371490/(Tpot+273.15)^2 + 12436780000/(Tpot+273.15)^3 - 862106100000/(Tpot+273.15)^4 -(Sal*(0.020573 - 12.142/(Tpot+273.15) + 2363.1/(Tpot+273.15)^2))))-O2, #la primera parte es la sw_satO2 del m√≠tico SEAWATER toolbox del matlab. reference: "Weiss, R. F. 1970: "The solubility of nitrogen, oxygen and argon in water and seawater."Deep-Sea Research., 1970, Vol 17, pp721-735.
                  O20=O2+AOU,
         NO30=NO3-(AOU/Redfield$NO3),
         PO40=PO4-(AOU/Redfield$PO4))
@@ -129,18 +130,18 @@ SWT<-SWT %>%
          PO40=PO4-(AOU/Redfield$PO4))
 ```
 
-Si vuelves a ver ahora las dos tablas, ver·s que hay nuevas columnas (cada vez m·s a la izquierda, sÌ...):
-```{r tabla de datos post c·lculos}
+Si vuelves a ver ahora las dos tablas, ver√°s que hay nuevas columnas (cada vez m√°s a la izquierda, s√≠...):
+```{r tabla de datos post c√°lculos}
 datatable(data, class = 'hover row-border',colnames = c('observation' = 1))
 ```
 
-Y tambiÈn en la tabla de las SWT:
+Y tambi√©n en la tabla de las SWT:
 
-```{r tabla SWT post c·lculos}
+```{r tabla SWT post c√°lculos}
 datatable(SWT, class = 'hover row-border',colnames = c('ID' = 1))
 ```
 
-##Escogemos una observaciÛn
+##Escogemos una observaci√≥n
 
 ```{r eliminas los datos de superficie}
 # Filter data --------------------------------------------------
@@ -151,12 +152,12 @@ data<-data %>%
 
 
 # Choose an observation for the example ---------------------------------------------------------
-observation=200 #un n˙mero al azar entre 1 y el total de observaciones nrow(data)=639
+observation=200 #un n√∫mero al azar entre 1 y el total de observaciones nrow(data)=639
 
 ```
-Aseg˙rate que eliminaste los datos de superficie a 100 metros, que no entran en el an·lisis. En nuestro caso la menor profundidad que existe en los datos es ya `r min(data$Pres)`m, por lo tanto podemos seguir.
+Aseg√∫rate que eliminaste los datos de superficie a 100 metros, que no entran en el an√°lisis. En nuestro caso la menor profundidad que existe en los datos es ya `r min(data$Pres)`m, por lo tanto podemos seguir.
 
-Lo siguiente fue **definir una muestra concreta**, en este ejemplo vamos a caracterizar la composiciÛn de masas de agua de la **muestra `r observation`.** La muestra seleccionada tiene esta composiciÛn:
+Lo siguiente fue **definir una muestra concreta**, en este ejemplo vamos a caracterizar la composici√≥n de masas de agua de la **muestra `r observation`.** La muestra seleccionada tiene esta composici√≥n:
 
 ```{r select data, echo=F}
 kable(
@@ -165,7 +166,7 @@ kable(
   digits=3)
 ```
 
-Vamos a comprobar que proporciÛn de masas de agua componen esa muestra concreta. Empezamos encontrando cu·l es la figura de mezcla que mejor explica la composiciÛn de esta muestra concreta a travÈs de un OMP clasico (de ahÌ la *'c'* de *'cOMP'* y del nombre del resto de las variables:). Recuerda: **cl·sico** hace referencia a que ˙nicamente considera **variables conservativas**: Temperatura potencial, salinidad, el macronutriente silicato (asumido conservativo) y los trazadores NO & PO.
+Vamos a comprobar que proporci√≥n de masas de agua componen esa muestra concreta. Empezamos encontrando cu√°l es la figura de mezcla que mejor explica la composici√≥n de esta muestra concreta a trav√©s de un OMP clasico (de ah√≠ la *'c'* de *'cOMP'* y del nombre del resto de las variables:). Recuerda: **cl√°sico** hace referencia a que √∫nicamente considera **variables conservativas**: Temperatura potencial, salinidad, el macronutriente silicato (asumido conservativo) y los trazadores NO & PO.
 
 Empezamos por la posibilidad de mezcla 1: 
 ```{r de uno en uno como tortugas..., echo=T}
@@ -175,7 +176,7 @@ sample<- sample %>%
 # preparas matriz de pesos
 W_matrixSel<-W%>%select("Mass", "Tpot", "Sal", "SiO4", "NO", "PO")
 W_matrixSel<-bind_rows(W_matrixSel,W_matrixSel,W_matrixSel,W_matrixSel)
-#øSer· la mejor figura de mezcla la n˙mero 1?
+#¬øSer√° la mejor figura de mezcla la n√∫mero 1?
 FigurademezclaUNO<-MixingFigures[1,] #La primera fila
   selectedSWTc<-SWT %>%
   select("wm","Tpot", "Sal", "SiO4", "NO", "PO")%>%
@@ -184,11 +185,11 @@ FigurademezclaUNO<-MixingFigures[1,] #La primera fila
     select(-"wm") #Deseleccionas las masas de agua por comodidad
   #Calcula el valor medio de esas masas de agua:
   meanselectedSWTc<-selectedSWTc%>% mutate_all(funs(mean)) 
-  #y calculas la desviaciÛn est·ndar
+  #y calculas la desviaci√≥n est√°ndar
   stdselectedSWTc<-selectedSWTc%>%  mutate_all(funs(sd)) 
   
-  #Normalizas! #normalizas la Mixing figure y le aÒades una columna de unos (NOTA: normalizar un valor X es restarle la media y dividir el resultado por la std)
-  normSWTc<-as.data.frame(c(1,(selectedSWTc-meanselectedSWTc)/stdselectedSWTc)) #y aÒades un uno (la masa, NO TOCAR)
+  #Normalizas! #normalizas la Mixing figure y le a√±ades una columna de unos (NOTA: normalizar un valor X es restarle la media y dividir el resultado por la std)
+  normSWTc<-as.data.frame(c(1,(selectedSWTc-meanselectedSWTc)/stdselectedSWTc)) #y a√±ades un uno (la masa, NO TOCAR)
   # y ponderas por peso:
   wnormSWTc<-normSWTc* W_matrixSel
   
@@ -196,14 +197,14 @@ FigurademezclaUNO<-MixingFigures[1,] #La primera fila
   normsample<-as.data.frame(c(1,(sample-meanselectedSWTc[1,])/stdselectedSWTc[1,])) #y le pones un 1 delante (la masa)
   wnormsample<-normsample*W_matrixSel[1,] 
   
-  #la funciÛn lsqnonneg admite como entrada una matriz y un vector, los preparo:
-  #øCÛmo? convirtiÈndolos desde lo que son ahora a lo que pide la funciÛn.
+  #la funci√≥n lsqnonneg admite como entrada una matriz y un vector, los preparo:
+  #¬øC√≥mo? convirti√©ndolos desde lo que son ahora a lo que pide la funci√≥n.
   wnormSWTc<-t(as.matrix.data.frame(wnormSWTc)) #preparo matriz
   wnormsample<-as.vector(as.matrix.data.frame(wnormsample)) #preparo vector
   lsqnonneg(wnormSWTc,wnormsample)
 # Interpreta la salida
 ```
-°Tremendo residuo.normalizado! Parece que esta figura de mezcla no es la que mejor le va, øno crees? Que te toca ahora... pues volver a plantear este mismo fragmento del script con la siguiente figura de mezcla... o meterlo en un **loop for** que lo haga por ti... °ya ver·s como no ye tan difÌcil!
+¬°Tremendo residuo.normalizado! Parece que esta figura de mezcla no es la que mejor le va, ¬øno crees? Que te toca ahora... pues volver a plantear este mismo fragmento del script con la siguiente figura de mezcla... o meterlo en un **loop for** que lo haga por ti... ¬°ya ver√°s como no ye tan dif√≠cil!
 
 ![](https://media.giphy.com/media/3ohzAsmzLqsfvbvCs8/giphy.gif)
 
@@ -225,7 +226,7 @@ W_matrixSel<-W%>%select("Mass", "Tpot", "Sal", "SiO4", "NO", "PO")
 W_matrixSel<-bind_rows(W_matrixSel,W_matrixSel,W_matrixSel,W_matrixSel)
 
 cOMP<-list() #Generas una lista para guardar los datos
-   for (nMF in 1:nrow(MixingFigures)) { #AquÌ es dÛnde planteas el for loop para todas las mixing figures posibles
+   for (nMF in 1:nrow(MixingFigures)) { #Aqu√≠ es d√≥nde planteas el for loop para todas las mixing figures posibles
       selectedSWTc<-SWTc %>%
         filter(wm %in% MixingFigures[nMF,])%>%
         arrange(factor(wm, levels = unlist(MixingFigures[nMF,])))%>% #Para que la tabla conserve el mismo orden que en el archivo MixingFigures original
@@ -233,22 +234,22 @@ cOMP<-list() #Generas una lista para guardar los datos
             meanselectedSWTc<-selectedSWTc%>%
               mutate_all(funs(mean)) #Calcula el valor medio de esas masas de agua
             stdselectedSWTc<-selectedSWTc%>%
-              mutate_all(funs(sd)) #y la desviaciÛn est·ndar
+              mutate_all(funs(sd)) #y la desviaci√≥n est√°ndar
                   normSWTc<-as.data.frame(c(1,(selectedSWTc-meanselectedSWTc)/stdselectedSWTc))
-                  #soluciÛn provisional
+                  #soluci√≥n provisional
                   if (nMF==9) { #Porque hay 3 watermasses en vez de 4
                     wnormSWTc<-normSWTc* W_matrixSel[1:3,]
                   } else {
-                    wnormSWTc<-normSWTc* W_matrixSel}#normalizas la Mixing figure y le aÒades una columna de unos (NOTA: normalizar un valor X es restarle la media y dividir el resultado por la std)
-  #DespuÈs, normalizas la sample
+                    wnormSWTc<-normSWTc* W_matrixSel}#normalizas la Mixing figure y le a√±ades una columna de unos (NOTA: normalizar un valor X es restarle la media y dividir el resultado por la std)
+  #Despu√©s, normalizas la sample
   normsample<-as.data.frame(c(1,(sample-meanselectedSWTc[1,])/stdselectedSWTc[1,])) #y le pones un 1 delante (la masa)
-  wnormsample<-normsample*W_matrixSel[1,] #normalizas la muestra seg˙n el peso
-  #la funciÛn lsqnonneg necesita una matriz y un vector, los preparo
+  wnormsample<-normsample*W_matrixSel[1,] #normalizas la muestra seg√∫n el peso
+  #la funci√≥n lsqnonneg necesita una matriz y un vector, los preparo
   wnormSWTc<-t(as.matrix.data.frame(wnormSWTc)) #preparo matriz
   wnormsample<-as.vector(as.matrix.data.frame(wnormsample)) #preparo vector
    cOMP[[nMF]]<-(lsqnonneg(wnormSWTc,wnormsample)) 
    } 
-#en realidad sÛlo quieres encontrar el menor residuo, que ser· la mejor figura posible:
+#en realidad s√≥lo quieres encontrar el menor residuo, que ser√° la mejor figura posible:
 resid<-c()
 for (i in 1:nrow(MixingFigures)) {
     resid[i]<-(cOMP[[i]]$resid.norm)
@@ -257,7 +258,7 @@ bestMF=which(resid==min(resid))
 ```
 
 ## extended OMP (eOMP)
-Una vez que con el classicOMP has decidido quÈ figura de mezcla es la mejor, que en este caso es la figura **n˙mero `r bestMF`** (la formada por las **masas de agua `r unname(MixingFigures[bestMF,])`**) pasas a aplicar a esa figura en concreto el extended OMP.  Muy similar pero con una columna/incÛgnita m·s:
+Una vez que con el classicOMP has decidido qu√© figura de mezcla es la mejor, que en este caso es la figura **n√∫mero `r bestMF`** (la formada por las **masas de agua `r unname(MixingFigures[bestMF,])`**) pasas a aplicar a esa figura en concreto el extended OMP.  Muy similar pero con una columna/inc√≥gnita m√°s:
 
 ```{r, extended OMP, echo=T}
 sample<-data[observation,] 
@@ -271,26 +272,26 @@ W_matrixSel<-bind_rows(W_matrixSel,W_matrixSel,W_matrixSel,W_matrixSel,W_matrixS
 eOMP<-list()
       selectedSWTe<-SWT%>%
         select("wm","Tpot", "Sal", "SiO4", "NO30", "PO40","O20") %>% 
-        filter(wm %in% MixingFigures[bestMF,])%>% #te quedas solo con las masas de agua que est·n en la mejor mixing figure
+        filter(wm %in% MixingFigures[bestMF,])%>% #te quedas solo con las masas de agua que est√°n en la mejor mixing figure
         arrange(factor(wm, levels = unlist(MixingFigures[nMF,])))%>% #Para que la tabla conserve el mismo orden que en el archivo MixingFigures original
-        select(-"wm") #Deselecciona las masas de agua (por comodidad de cara los c·lculos)
+        select(-"wm") #Deselecciona las masas de agua (por comodidad de cara los c√°lculos)
             meanselectedSWTe<-selectedSWTe%>%
               mutate_all(funs(mean)) #Calcula el valor medio de esas masas de agua
             stdselectedSWTe<-selectedSWTe%>%
-              mutate_all(funs(sd)) #y la desviaciÛn est·ndar
+              mutate_all(funs(sd)) #y la desviaci√≥n est√°ndar
                   normSWTe<-as.data.frame(c(1,(selectedSWTe-meanselectedSWTe)/stdselectedSWTe))
    # -------- extended: with Redfield ratios!
   Redfieldratios<-c(0, 0,Redfield$Si, Redfield$NO3, Redfield$PO4, Redfield$O2)
   columntoadd<-data.frame(X1=0, 1/(Redfieldratios*stdselectedSWTe[1,])) #el primer cero es de la masa (columna de nombre X1 por el momento)
   columntoadd[2:3]=0 #Para que te quite los Inf que salen de hacer la inversa de 0.
-      normSWTe<-bind_rows(normSWTe, columntoadd) #Le aÒades la columna del extended
-                                     wnormSWTe<-normSWTe* W_matrixSel#normalizas la Mixing figure y le aÒades una columna de unos
-  #DespuÈs, normalizas la sample
+      normSWTe<-bind_rows(normSWTe, columntoadd) #Le a√±ades la columna del extended
+                                     wnormSWTe<-normSWTe* W_matrixSel#normalizas la Mixing figure y le a√±ades una columna de unos
+  #Despu√©s, normalizas la sample
   normsample<-as.data.frame(c(1,(sample-meanselectedSWTe[1,])/stdselectedSWTe[1,])) #y le pones un 1 delante (la masa)
-  wnormsample<-normsample*W_matrixSel[1,] #normalizas la muestra seg˙n el peso
+  wnormsample<-normsample*W_matrixSel[1,] #normalizas la muestra seg√∫n el peso
 
 
-  #la funciÛn lsqnonneg necesita una matriz y un vector, los preparo
+  #la funci√≥n lsqnonneg necesita una matriz y un vector, los preparo
   wnormSWTe<-t(as.matrix.data.frame(wnormSWTe)) #preparo matriz
   wnormsample<-as.vector(as.matrix.data.frame(wnormsample)) #preparo vector
    eOMP<-(lsqnonneg(wnormSWTe,wnormsample)) 
@@ -304,7 +305,7 @@ eOMP<-list()
 ```
 
 # Resultado final
-La composiciÛn de la muestra `r observation`, explicada por la figura de mezcla `r unname(MixingFigures[bestMF,])`, es:
+La composici√≥n de la muestra `r observation`, explicada por la figura de mezcla `r unname(MixingFigures[bestMF,])`, es:
 
 - `r round(unname(eOMP$x[1]*100),2)`% de `r MixingFigures[bestMF,1]`
 
@@ -315,7 +316,7 @@ La composiciÛn de la muestra `r observation`, explicada por la figura de mezcla 
 - `r round(unname(eOMP$x[4]*100),2)`% de `r MixingFigures[bestMF,4]`
 
 
-Ya sabes hacerlo para una muestra, asÌ que ahora que ya eres un experto en R, que ser· mejor, øhacerlo muestra a muestra o montar un *for loop* para todas? ;)
+Ya sabes hacerlo para una muestra, as√≠ que ahora que ya eres un experto en R, que ser√° mejor, ¬øhacerlo muestra a muestra o montar un *for loop* para todas? ;)
 
 
 
